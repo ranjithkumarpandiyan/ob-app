@@ -1,0 +1,26 @@
+{
+    "internalError": {
+        "message": "Something went wrong",
+        "level": "error"
+    },
+    "notFound": {
+        "message": "Resource not found",
+        "status": 404,
+        "level": "warn"
+    },
+    "unauthorized": {
+        "message": "Authentication required",
+        "status": 401,
+        "level": "warn"
+    },
+    "forbidden": {
+        "message": "Insufficient permissions",
+        "status": 403,
+        "level": "warn"
+    },
+    "validationError": {
+        "message": "Validation failed",
+        "status": 400,
+        "level": "warn"
+    }
+}

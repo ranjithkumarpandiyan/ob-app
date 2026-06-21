@@ -18,22 +18,52 @@ class OgCache {
     #logger = console;
     #defaultTTL = 300; // 5 minutes
 
-    connect({ url = 'redis://localhost:6379', logger = console, defaultTTL = 300 } = {}) {
+    connect({ url, logger = console, defaultTTL = 300 } = {}) {
         this.#logger = logger;
         this.#defaultTTL = defaultTTL;
 
+        // Skip Redis entirely if no URL is configured (e.g. local dev without Redis)
+        if (!url) {
+            this.#logger.warn('[ob-cache] No REDIS_URL configured — cache disabled (no-op mode)');
+            return this;
+        }
+
+        const MAX_RETRIES = 3;
+        let errorLogged = false;
+
         this.#client = new Redis(url, {
-            maxRetriesPerRequest: 3,
+            maxRetriesPerRequest: 0,
             enableReadyCheck: true,
-            lazyConnect: false,
+            lazyConnect: true,
+            retryStrategy: (times) => {
+                if (times >= MAX_RETRIES) { return null; } // triggers 'end' event → no-op
+                return Math.min(times * 500, 2000);
+            },
         });
 
-        this.#client.on('connect', () =>
-            this.#logger.info('[ob-cache] Redis connected')
-        );
-        this.#client.on('error', (err) =>
-            this.#logger.error('[ob-cache] Redis error:', err.message)
-        );
+        this.#client.on('connect', () => {
+            errorLogged = false;
+            this.#logger.info('[ob-cache] Redis connected');
+        });
+
+        this.#client.on('error', (err) => {
+            if (!errorLogged) {
+                errorLogged = true;
+                this.#logger.warn(`[ob-cache] Redis unavailable — ${err.message}`);
+            }
+        });
+
+        // Fired when retryStrategy returns null (retries exhausted) — switch to no-op
+        this.#client.on('end', () => {
+            if (this.#client) {
+                this.#logger.warn('[ob-cache] Redis retries exhausted — switching to no-op mode');
+                this.#client = null;
+            }
+        });
+
+        this.#client.connect().catch(() => {
+            // Connection errors are surfaced via the 'error' event
+        });
 
         return this;
     }
@@ -44,7 +74,7 @@ class OgCache {
    * Get a cached value. Returns null on miss.
    */
     async get(key) {
-        this.#assertConnected();
+        if (!this.#client) { return null; }
         const raw = await this.#client.get(key);
         if (raw === null) {return null;}
         try {
@@ -59,7 +89,7 @@ class OgCache {
    * Serializes objects to JSON automatically.
    */
     async set(key, value, ttl = this.#defaultTTL) {
-        this.#assertConnected();
+        if (!this.#client) { return false; }
         const serialized = typeof value === 'string' ? value : JSON.stringify(value);
         if (ttl > 0) {
             await this.#client.set(key, serialized, 'EX', ttl);
@@ -73,7 +103,7 @@ class OgCache {
    * Delete a single key.
    */
     async del(key) {
-        this.#assertConnected();
+        if (!this.#client) { return 0; }
         return this.#client.del(key);
     }
 
@@ -81,7 +111,7 @@ class OgCache {
    * Check if a key exists.
    */
     async has(key) {
-        this.#assertConnected();
+        if (!this.#client) { return false; }
         return (await this.#client.exists(key)) === 1;
     }
 
@@ -89,7 +119,7 @@ class OgCache {
    * Get remaining TTL for a key in seconds. -1 = no TTL, -2 = not found.
    */
     async ttl(key) {
-        this.#assertConnected();
+        if (!this.#client) { return -2; }
         return this.#client.ttl(key);
     }
 
@@ -117,7 +147,7 @@ class OgCache {
    * Uses SCAN to avoid blocking Redis with KEYS on large datasets.
    */
     async invalidateByPrefix(prefix) {
-        this.#assertConnected();
+        if (!this.#client) { return 0; }
         let cursor = '0';
         let deleted = 0;
         do {
@@ -140,7 +170,7 @@ class OgCache {
    * Publish a message to a Redis channel.
    */
     async publish(channel, message) {
-        this.#assertConnected();
+        if (!this.#client) { return 0; }
         const payload = typeof message === 'string' ? message : JSON.stringify(message);
         return this.#client.publish(channel, payload);
     }
@@ -150,7 +180,7 @@ class OgCache {
    * Returns a dedicated subscriber client (ioredis can't mix pub/sub and commands).
    */
     subscribe(channel, handler) {
-        this.#assertConnected();
+        if (!this.#client) { return null; }
         const subscriber = this.#client.duplicate();
         subscriber.subscribe(channel);
         subscriber.on('message', (_ch, message) => {
@@ -175,6 +205,10 @@ class OgCache {
     client() {
         this.#assertConnected();
         return this.#client;
+    }
+
+    get connected() {
+        return this.#client !== null;
     }
 
     #assertConnected() {

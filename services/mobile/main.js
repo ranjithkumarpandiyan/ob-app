@@ -1,3 +1,5 @@
-import { start } from '../../impl/mobile/index.js';
+import { run } from 'ob-service';
+import { MobilePortal } from './portal.js';
+import { bootstrap } from './bootstrap.js';
 
-await start();
+await run({ name: 'mobile', PortalClass: MobilePortal, bootstrap });

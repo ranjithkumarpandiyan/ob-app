@@ -1,0 +1,86 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "customer",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "/Users/ranjith/.nvm/versions/node/v22.12.0/bin/node",
+            "program": "${workspaceFolder}/services/customer/main.js",
+            "runtimeArgs": ["--watch"],
+            "env": {
+                "NODE_ENV": "development",
+                "OB_ENV": "dev"
+            },
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "skipFiles": ["<node_internals>/**"]
+        },
+        {
+            "name": "admin",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "/Users/ranjith/.nvm/versions/node/v22.12.0/bin/node",
+            "program": "${workspaceFolder}/services/admin/main.js",
+            "runtimeArgs": ["--watch"],
+            "env": {
+                "NODE_ENV": "development",
+                "OB_ENV": "dev"
+            },
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "skipFiles": ["<node_internals>/**"]
+        },
+        {
+            "name": "staff",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "/Users/ranjith/.nvm/versions/node/v22.12.0/bin/node",
+            "program": "${workspaceFolder}/services/staff/main.js",
+            "runtimeArgs": ["--watch"],
+            "env": {
+                "NODE_ENV": "development",
+                "OB_ENV": "dev"
+            },
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "skipFiles": ["<node_internals>/**"]
+        },
+        {
+            "name": "mobile",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "/Users/ranjith/.nvm/versions/node/v22.12.0/bin/node",
+            "program": "${workspaceFolder}/services/mobile/main.js",
+            "runtimeArgs": ["--watch"],
+            "env": {
+                "NODE_ENV": "development",
+                "OB_ENV": "dev"
+            },
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "skipFiles": ["<node_internals>/**"]
+        },
+        {
+            "name": "worker",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "/Users/ranjith/.nvm/versions/node/v22.12.0/bin/node",
+            "program": "${workspaceFolder}/services/worker/main.js",
+            "runtimeArgs": ["--watch"],
+            "env": {
+                "NODE_ENV": "development",
+                "OB_ENV": "dev"
+            },
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "skipFiles": ["<node_internals>/**"]
+        }
+    ],
+    "compounds": [
+        {
+            "name": "all services",
+            "configurations": ["customer", "admin", "staff", "mobile", "worker"]
+        }
+    ]
+}

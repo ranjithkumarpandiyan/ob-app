@@ -22,6 +22,7 @@
  */
 
 import { randomUUID } from 'crypto';
+import { ObError } from 'ob-errors';
 
 // ─── Built-in middleware functions ───────────────────────────────────────────
 
@@ -104,19 +105,26 @@ function notFoundMiddleware() {
 
 function errorHandlerMiddleware(logger = console) {
     // Express error handler must have 4 params
-
     return (err, req, res, _next) => {
+        const isObError = err instanceof ObError;
         const status = err.status ?? err.statusCode ?? 500;
+        let level = isObError ? err.level : 'warn';
+        if (!isObError && status >= 500) { level = 'error'; }
         const message = status < 500 ? err.message : 'Internal Server Error';
+        const code = isObError ? err.code : undefined;
 
-        if (status >= 500) {
-            logger.error?.(`[${req.id}] Unhandled error:`, err);
+        if (level === 'error') {
+            logger.error?.(`[${req.id}] ${err.message}`, isObError ? err.meta : err);
+        } else {
+            logger.warn?.(`[${req.id}] ${err.message}`);
         }
 
         res.status(status).json({
+            ok: false,
             error: message,
+            ...(code ? { code } : {}),
             requestId: req.id,
-            /* eslint-disable-next-line n/no-process-env -- stack trace only shown outside production */
+            /* eslint-disable-next-line n/no-process-env -- stack only shown outside production */
             ...(process.env.NODE_ENV !== 'production' && status >= 500 ? { stack: err.stack } : {})
         });
     };

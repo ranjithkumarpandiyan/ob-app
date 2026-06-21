@@ -1,0 +1,19 @@
+{
+    "users": {
+        "invalidCredentials": {
+            "message": "Email or password incorrect",
+            "status": 401,
+            "level": "warn"
+        },
+        "notFound": {
+            "message": "User not found",
+            "status": 404,
+            "level": "warn"
+        },
+        "tokenExpired": {
+            "message": "Session expired, please login again",
+            "status": 401,
+            "level": "warn"
+        }
+    }
+}

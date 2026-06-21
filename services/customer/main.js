@@ -1,3 +1,5 @@
-import { start } from '../../impl/customer/index.js';
+import { run } from 'ob-service';
+import { CustomerPortal } from './portal.js';
+import { bootstrap } from './bootstrap.js';
 
-await start();
+await run({ name: 'customer', PortalClass: CustomerPortal, bootstrap });

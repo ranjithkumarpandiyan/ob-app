@@ -1,0 +1,14 @@
+{
+    "users": {
+        "notFound": {
+            "message": "User not found",
+            "status": 404,
+            "level": "warn"
+        },
+        "forbidden": {
+            "message": "Insufficient permissions",
+            "status": 403,
+            "level": "warn"
+        }
+    }
+}

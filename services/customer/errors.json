@@ -1,0 +1,35 @@
+{
+    "users": {
+        "invalidCredentials": {
+            "message": "Email or password incorrect",
+            "status": 401,
+            "level": "warn"
+        },
+        "notFound": {
+            "message": "User not found",
+            "status": 404,
+            "level": "warn"
+        },
+        "emailTaken": {
+            "message": "Email already in use",
+            "status": 409,
+            "level": "warn"
+        },
+        "accountDisabled": {
+            "message": "Account has been disabled",
+            "status": 403,
+            "level": "warn"
+        }
+    },
+    "orders": {
+        "notFound": {
+            "message": "Order not found",
+            "status": 404,
+            "level": "warn"
+        },
+        "paymentFailed": {
+            "message": "Payment could not be processed",
+            "level": "error"
+        }
+    }
+}

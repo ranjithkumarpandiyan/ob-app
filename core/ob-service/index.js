@@ -41,7 +41,7 @@ import bus from 'ob-bus';
 async function run({ name, PortalClass = null, bootstrap, onShutdown = null } = {}) {
 
     // ── 1. Config ─────────────────────────────────────────────────────────────
-    config.load();
+    config.load(name);
 
     // ── 2. Logger ─────────────────────────────────────────────────────────────
     logger.setConfig(config);
@@ -76,12 +76,17 @@ async function run({ name, PortalClass = null, bootstrap, onShutdown = null } = 
         portal.prepare();
     }
 
-    // ── 7. Bootstrap — loads handlers + mounts API routes + error handlers ────
+    // ── 7. Bootstrap — loads handlers (business logic only) ──────────────────
     if (bootstrap) {
         await bootstrap({ portal, bus, logger, cache, config });
     }
 
-    // ── 8. Listen + shutdown ──────────────────────────────────────────────────
+    // ── 8. Wire HTTP — apply middleware + mount routes (portal only) ──────────
+    if (portal) {
+        portal.wire(bus, log);
+    }
+
+    // ── 9. Listen + shutdown ──────────────────────────────────────────────────
     if (portal) {
         portal.onShutdown(async() => {
             if (onShutdown) {

@@ -1,3 +1,5 @@
-import { start } from '../../impl/staff/index.js';
+import { run } from 'ob-service';
+import { StaffPortal } from './portal.js';
+import { bootstrap } from './bootstrap.js';
 
-await start();
+await run({ name: 'staff', PortalClass: StaffPortal, bootstrap });

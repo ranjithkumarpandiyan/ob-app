@@ -1,28 +1,20 @@
 /**
- * impl/modules/users/auth.handlers.js
- * Handlers for bus address: users.auth.*
+ * services/customer/modules/users/handlers.js
+ * User handlers for the customer portal.
  *
- * Factory pattern — receives framework services, returns descriptor.
- * logger is pre-scoped to 'users' by the loader.
- *
- * Visibility:
- *   public: true  → exposed as HTTP API endpoint via ob-router
- *   (omitted)     → internal bus use only, no HTTP route generated
- *
- * Auto-registered by loadHandlers() as:
- *   users.auth.login      [public]
- *   users.auth.logout     [public]
- *   users.auth.findById   [private]
+ * Bus addresses registered:
+ *   users.login      [public]
+ *   users.logout     [public]
+ *   users.findById   [private]
  */
 
-export const portals = ['customer', 'mobile'];
+export const portals = ['customer'];
 
 export default ({ logger }) => ({
     login: {
         public: true,
         handler: async(payload, _ctx) => {
             const { email, password } = payload;
-
             logger.debug({ email }, 'login attempt');
 
             if (!email || !password) {
@@ -50,7 +42,6 @@ export default ({ logger }) => ({
     },
 
     findById: {
-        // private — no HTTP route generated, internal bus use only
         handler: async(payload, _ctx) => {
             const { id } = payload;
             logger.debug({ id }, 'findById');

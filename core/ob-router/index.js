@@ -15,6 +15,8 @@
  */
 
 import express from 'express';
+import cache from 'ob-cache';
+import { createCtx } from 'ob-utils';
 
 /**
  * Generate and mount Express routes for all public handlers assigned to portalName.
@@ -52,7 +54,7 @@ function mountRoutes(app, bus, { portalName, version = 1, logger = console } = {
             router.post(routePath, async(req, res, next) => {
                 try {
                     const payload = { ...req.body, ...req.params, ...req.query };
-                    const ctx = { req, res, requestId: req.id, portalName };
+                    const ctx = createCtx(req, { portalName, cache });
                     const result = await bus.exec(address)(payload, ctx);
                     res.json({ ok: true, data: result });
                 } catch (err) {

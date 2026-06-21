@@ -12,6 +12,8 @@
 import express from 'express';
 import http from 'http';
 import { randomUUID } from 'crypto';
+import middleware from 'ob-middleware';
+import { mountRoutes } from 'ob-router';
 
 class ObServer {
     #app;
@@ -131,7 +133,24 @@ class ObServer {
         return this;
     }
 
-    // ─── Router mounting ────────────────────────────────────────────────────────
+    // ─── HTTP + Route wiring ────────────────────────────────────────────────────
+
+    /**
+     * Apply middleware chain + mount all bus routes for this portal.
+     * Call AFTER bootstrap() has registered handlers on the bus.
+     *
+     * @param {object} bus
+     * @param {object} [logger]
+     */
+    wire(bus, logger = this.#logger) {
+        middleware.applyTo(this.#app);
+        mountRoutes(this.#app, bus, {
+            portalName: this.portalName,
+            logger: logger.get ? logger.get('ob-router') : logger,
+        });
+        middleware.applyTailTo(this.#app);
+        return this;
+    }
 
     mount(prefix, router) {
         this.#app.use(prefix, router);

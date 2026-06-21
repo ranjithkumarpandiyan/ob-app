@@ -11,12 +11,13 @@
     "start:staff": "node services/staff/main.js",
     "start:customer": "node services/customer/main.js",
     "start:mobile": "node services/mobile/main.js",
-    "start:worker": "node services/ob-worker/main.js",
+    "start:worker": "node services/worker/main.js",
     "dev:admin": "node --watch services/admin/main.js",
     "dev:staff": "node --watch services/staff/main.js",
     "dev:customer": "node --watch services/customer/main.js",
     "dev:mobile": "node --watch services/mobile/main.js",
-    "dev:worker": "node --watch services/ob-worker/main.js",
+    "dev:worker": "node --watch services/worker/main.js",
+    "dev:all": "concurrently -n admin,staff,customer,mobile,worker -c blue,cyan,green,magenta,yellow \"npm run dev:admin\" \"npm run dev:staff\" \"npm run dev:customer\" \"npm run dev:mobile\" \"npm run dev:worker\"",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
@@ -34,6 +35,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.5.0",
+    "concurrently": "^9.0.0",
     "eslint": "^9.5.0",
     "eslint-plugin-n": "^17.9.0",
     "eslint-plugin-promise": "^6.4.0",
